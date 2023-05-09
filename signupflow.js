@@ -70,15 +70,7 @@ $(document).ready(function () {
   $(phoneInput).on("blur", function () {
     isPhoneNumberValid();
   });
-  function isCalendlyEvent(e) {
-    return e.data.event && e.data.event.indexOf("calendly") === 0;
-  }
 
-  window.addEventListener("message", function (e) {
-    if (isCalendlyEvent(e) && e.data.event === "calendly.event_scheduled") {
-      $form.goForward();
-    }
-  });
 
   // Cache toutes les div .question sauf la première
   $(".question:not(:first)").hide();
@@ -132,6 +124,7 @@ $(document).ready(function () {
     if (event.data.event === "calendly.event_scheduled") {
       // Soumet le formulaire
       $("#submition").click();
+      console.log("event schedule");
     }
   });
 
