@@ -71,7 +71,6 @@ $(document).ready(function () {
     isPhoneNumberValid();
   });
 
-
   // Cache toutes les div .question sauf la première
   $(".question:not(:first)").hide();
   // Cache le bouton #submit
@@ -124,7 +123,6 @@ $(document).ready(function () {
     if (event.data.event === "calendly.event_scheduled") {
       // Soumet le formulaire
       $("#submition").click();
-      console.log("event schedule");
     }
   });
 
@@ -156,7 +154,6 @@ $(document).ready(function () {
         const imgSrc = targetItem.find(".select_img").attr("src");
         $(this).find(".fs-combobox_icon").attr("src", "");
         $(this).find(".fs-combobox_icon").attr("src", imgSrc);
-        console.log(imgSrc);
       } else {
         console.log("Aucune correspondance trouvée pour : " + textDrop);
       }
@@ -174,7 +171,7 @@ $(document).ready(function () {
     var imgSrc = $("[fs-cmsselect-element]:contains('" + selectedValue + "')")
       .siblings("img.select_img")
       .attr("src");
-    console.log(imgSrc);
+
     $(".img-selected").attr("src", imgSrc).show();
   });
   setTimeout(function () {
