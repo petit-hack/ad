@@ -1,0 +1,55 @@
+.iti--separate-dial-code .iti__selected-flag {
+  color: white;
+  background-color: #0f0f46;
+  border-start-start-radius: 0.75rem;
+  border-bottom-left-radius: 0.75rem;
+}
+.iti--separate-dial-code .iti__selected-flag:hover,
+.iti--allow-dropdown .iti__flag-container:hover .iti__selected-flag {
+  color: white;
+  background-color: #0f0f46 !important;
+  opacity: 75%;
+  border-start-start-radius: 0.75rem;
+  border-bottom-left-radius: 0.75rem;
+}
+.iti--separate-dial-code .iti__selected-dial-code {
+  font-family: Montserrat, sans-serif;
+}
+.iti__country-list {
+  border-radius: 0.75rem;
+  font-family: Montserrat, sans-serif;
+}
+.iti__country.iti__highlight {
+  color: white;
+  background-color: #0f0f46 !important;
+}
+
+.landing-demo-form.v2#load {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50%;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #0f0f46;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+#signup {
+  display: none;
+}
