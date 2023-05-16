@@ -1,29 +1,41 @@
 $(document).ready(function () {
-  // Initialise intl-tel-input
-  const phoneInput = document.querySelector("#phone");
-  const iti = window.intlTelInput(phoneInput, {
-    separateDialCode: true,
-    utilsScript:
-      "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js"
+  function handleInputUpdate(hiddenFormSelector, buttonSelector, isSecondStep) {
+    const id = $(this).attr("id");
+    const hiddenId = isSecondStep ? `hidden-${id}-second` : `hidden-${id}`;
+    $(`#${hiddenId}`).val($(this).val());
+
+    let allFieldsFilled = true;
+    $(
+      `${hiddenFormSelector} input, ${hiddenFormSelector} select, ${hiddenFormSelector} textarea`
+    ).each(function () {
+      if (!$(this).val()) {
+        allFieldsFilled = false;
+        return false;
+      }
+    });
+
+    if (allFieldsFilled) {
+      $(`${hiddenFormSelector} ${buttonSelector}`).click();
+      $(hiddenFormSelector).remove();
+    }
+  }
+
+  $("#name, #email, #tool").on("input", function () {
+    handleInputUpdate.call(this, ".hiddenform_stepone", ".w-button", false);
   });
 
-  // Fonction de validation du numéro de téléphone
-  function isPhoneNumberValid() {
-    const phoneNumber = iti.getNumber();
-    const isValid = iti.isValidNumber();
-    if (!isValid) {
-      $("#phone").css("border-color", "red");
-      $(".error").text("Please enter a valid phone number").show();
-    } else {
-      $("#phone").css("border-color", "");
-      $(".error").text("").hide();
-    }
-    return isValid;
-  }
+  $(".form_account input, .form_account select").on("input", function () {
+    handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
+  });
+
+  $(".form_account textarea").on("blur", function () {
+    handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
+  });
+
   const genericEmailDomains = ["gmail.com", "yahoo.com", "hotmail.com"];
 
   function isEmailValid(email) {
-    const regex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+    const regex = /^[\w-+]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
     return regex.test(email);
   }
 
@@ -67,9 +79,6 @@ $(document).ready(function () {
       resetInput();
     }
   });
-  $(phoneInput).on("blur", function () {
-    isPhoneNumberValid();
-  });
 
   // Cache toutes les div .question sauf la première
   $(".question:not(:first)").hide();
@@ -97,7 +106,6 @@ $(document).ready(function () {
       $(".error").text("All fields are mandatory").show();
       return false;
     }
-
     // Si un message d'erreur est affiché, empêcher de passer à l'étape suivante
     if ($(".error").is(":visible")) {
       return false;
@@ -112,7 +120,6 @@ $(document).ready(function () {
       const currentQuestion = $(".question:visible");
       currentQuestion.hide();
       currentQuestion.next(".question").show();
-
       // Met à jour les boutons de navigation
       toggleNavigationButtons();
     } else {
