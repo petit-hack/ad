@@ -1,4 +1,6 @@
 $(document).ready(function () {
+  let stepCounter = 0; // Ajoutez ce compteur pour suivre l'étape actuelle
+
   function handleInputUpdate(hiddenFormSelector, buttonSelector, isSecondStep) {
     const id = $(this).attr("id");
     const hiddenId = isSecondStep ? `hidden-${id}-second` : `hidden-${id}`;
@@ -8,7 +10,19 @@ $(document).ready(function () {
     $(
       `${hiddenFormSelector} input, ${hiddenFormSelector} select, ${hiddenFormSelector} textarea`
     ).each(function () {
-      if (!$(this).val()) {
+      if (this.id === "comment" || this.id === "role") {
+        // Ignore the comment and role fields
+        return true;
+      }
+      if ($(this).is("input") && !$(this).val()) {
+        allFieldsFilled = false;
+        return false;
+      }
+      if ($(this).is("select") && $(this).val() === "") {
+        allFieldsFilled = false;
+        return false;
+      }
+      if ($(this).is("textarea") && $(this).val().trim() === "") {
         allFieldsFilled = false;
         return false;
       }
@@ -16,9 +30,22 @@ $(document).ready(function () {
 
     if (allFieldsFilled) {
       $(`${hiddenFormSelector} ${buttonSelector}`).click();
-      $(hiddenFormSelector).remove();
     }
   }
+
+  $("#company_name, #company_size, #role, #industry, #comment").on(
+    "change",
+    function () {
+      handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
+    }
+  );
+
+  $("#company_name, #company_size, #role, #industry, #comment").on(
+    "change",
+    function () {
+      handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
+    }
+  );
 
   $("#name, #email, #tool").on("input", function () {
     handleInputUpdate.call(this, ".hiddenform_stepone", ".w-button", false);
@@ -31,6 +58,31 @@ $(document).ready(function () {
   $(".form_account textarea").on("blur", function () {
     handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
   });
+  // Création d'un observer pour écouter les changements dans le DOM
+  var observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      for (var i = 0; i < mutation.addedNodes.length; i++) {
+        var node = mutation.addedNodes[i];
+        if ($(node).hasClass("loom-block") && $(node).is(":visible")) {
+          // Submit the form and remove the hidden form when the loom block is visible
+          $(".hiddenform_steptwo .w-button").click();
+          setTimeout(() => $(".hiddenform_steptwo").remove(), 500);
+          observer.disconnect();
+        }
+      }
+    });
+  });
+
+  // Configuration de l'observer
+  var observerConfig = {
+    attributes: true,
+    childList: true,
+    characterData: true,
+    subtree: true
+  };
+
+  // Commencer l'observation
+  observer.observe(document.body, observerConfig);
 
   const genericEmailDomains = ["gmail.com", "yahoo.com", "hotmail.com"];
 
@@ -113,7 +165,6 @@ $(document).ready(function () {
 
     return true;
   }
-
   $("#next").on("click", function () {
     if (validateVisibleInputs()) {
       $(".error").text("").hide();
@@ -122,6 +173,15 @@ $(document).ready(function () {
       currentQuestion.next(".question").show();
       // Met à jour les boutons de navigation
       toggleNavigationButtons();
+
+      // Incremente le compteur à chaque fois que le bouton "Suivant" est cliqué
+      stepCounter++;
+      console.log(stepCounter);
+
+      // Si le compteur atteint 4 (c'est-à-dire la quatrième étape), soumettez le formulaire
+      if (stepCounter === 3) {
+        $(".hiddenform_steptwo .w-button").click();
+      }
     } else {
       $(".error").text("All fields are mandatory").show();
     }
