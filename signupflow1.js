@@ -47,11 +47,11 @@ $(document).ready(function () {
     }
   );
 
-  $("#name, #email, #tool").on("input", function () {
+  $("#name, #email, #tool").on("change", function () {
     handleInputUpdate.call(this, ".hiddenform_stepone", ".w-button", false);
   });
 
-  $(".form_account input, .form_account select").on("input", function () {
+  $(".form_account input, .form_account select").on("change", function () {
     handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
   });
 
