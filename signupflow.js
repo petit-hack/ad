@@ -1,7 +1,7 @@
 $(document).ready(function () {
   let stepCounter = 0; // Ajoutez ce compteur pour suivre l'étape actuelle
 
-  function handleInputUpdate(hiddenFormSelector, buttonSelector, isSecondStep) {
+  function handleInputUpdate(hiddenFormSelector, isSecondStep) {
     const id = $(this).attr("id");
     const hiddenId = isSecondStep ? `hidden-${id}-second` : `hidden-${id}`;
     $(`#${hiddenId}`).val($(this).val());
@@ -29,7 +29,9 @@ $(document).ready(function () {
     });
 
     if (allFieldsFilled) {
-      $(`${hiddenFormSelector} ${buttonSelector}`).click();
+      $(hiddenFormSelector).data("readyToSubmit", true);
+    } else {
+      $(hiddenFormSelector).data("readyToSubmit", false);
     }
   }
 
@@ -39,6 +41,9 @@ $(document).ready(function () {
       handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
     }
   );
+  $("#name, #email, #tool").on("change", function () {
+    handleInputUpdate.call(this, ".hiddenform_stepone", false);
+  });
 
   $("#company_name, #company_size, #role, #industry, #comment").on(
     "change",
@@ -46,10 +51,6 @@ $(document).ready(function () {
       handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
     }
   );
-
-  $("#name, #email, #tool").on("change", function () {
-    handleInputUpdate.call(this, ".hiddenform_stepone", ".w-button", false);
-  });
 
   $(".form_account input, .form_account select").on("change", function () {
     handleInputUpdate.call(this, ".hiddenform_steptwo", ".w-button", true);
@@ -158,34 +159,49 @@ $(document).ready(function () {
       $(".error").text("All fields are mandatory").show();
       return false;
     }
+
     // Si un message d'erreur est affiché, empêcher de passer à l'étape suivante
     if ($(".error").is(":visible")) {
+      // Change the error message
+      const email = $("#email").val().trim();
+      if (!isEmailValid(email)) {
+        $(".error").text("Please enter a valid email");
+      } else if (isEmailGeneric(email)) {
+        $(".error").text("Please use your professional email");
+      }
       return false;
     }
 
     return true;
   }
+
   $("#next").on("click", function () {
     if (validateVisibleInputs()) {
+      // Incremente le compteur seulement si tous les inputs sont valides
+      stepCounter++;
+
       $(".error").text("").hide();
       const currentQuestion = $(".question:visible");
       currentQuestion.hide();
       currentQuestion.next(".question").show();
+
       // Met à jour les boutons de navigation
       toggleNavigationButtons();
 
-      // Incremente le compteur à chaque fois que le bouton "Suivant" est cliqué
-      stepCounter++;
-      console.log(stepCounter);
+      // Si le compteur atteint 2 (c'est-à-dire la deuxième étape), soumettez le formulaire hiddenform_stepone
+      if (stepCounter === 2 && $(".hiddenform_stepone").data("readyToSubmit")) {
+        $(".hiddenform_stepone .w-button").click();
+      }
 
-      // Si le compteur atteint 4 (c'est-à-dire la quatrième étape), soumettez le formulaire
-      if (stepCounter === 3) {
+      // Si le compteur atteint 4 (c'est-à-dire la quatrième étape), soumettez le formulaire hiddenform_steptwo
+      if (stepCounter === 4 && $(".hiddenform_steptwo").data("readyToSubmit")) {
         $(".hiddenform_steptwo .w-button").click();
       }
     } else {
       $(".error").text("All fields are mandatory").show();
     }
   });
+
   window.addEventListener("message", function (event) {
     if (event.data.event === "calendly.event_scheduled") {
       // Soumet le formulaire
@@ -198,13 +214,6 @@ $(document).ready(function () {
     resetInputBorderColor(this);
   });
 
-  // Empêche la soumission du formulaire avec la touche Entrée et déclenche le clic sur #next
-  $("form").on("keydown", function (event) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      $("#next").trigger("click");
-    }
-  });
   function applyImageSources() {
     $(".fs-combobox_option").each(function () {
       const textDrop = $(this).find(".text-drop").text().trim();
@@ -245,4 +254,10 @@ $(document).ready(function () {
     $(".landing-demo-form.v2#load").hide();
     $("#signup").show();
   }, 1200);
+});
+$(document).on("keydown", function (event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    $("#next").trigger("click");
+  }
 });
